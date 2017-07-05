@@ -1,0 +1,20 @@
+package com.jcj.royalni.zhihudailyjcj.utils;
+
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+/**
+ * Created by Royal Ni on 2017/7/5.
+ */
+
+public class Constants {
+
+    public static final String BEFORE_NEWS_URL = "https://news-at.zhihu.com/api/4/news/before/";
+    public static final String LATEST_NEWS_URL = "https://news-at.zhihu.com/api/4/news/latest";
+
+    private Constants(){};
+
+    public static final class Dates{
+        public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
+    }
+}
