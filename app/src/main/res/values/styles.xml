@@ -15,7 +15,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="CollapsingToolbarTitleStyle.About" parent="@android:style/TextAppearance">
+    <style name="CollapsingToolbarTitleStyle.expanded" parent="@android:style/TextAppearance">
         <item name="android:textColor">@android:color/transparent</item>
+    </style>
+
+    <style name="CollapsingToolbarTitleStyle.collapsed" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
     </style>
 </resources>
