@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class NewsList implements Parcelable {
     private String date;
-    private List<News> stories;
+    private List<Story> stories;
     private List<TopNews> top_stories;
 
     public List<TopNews> getTop_stories() {
@@ -29,11 +29,11 @@ public class NewsList implements Parcelable {
         this.date = date;
     }
 
-    public List<News> getStories() {
+    public List<Story> getStories() {
         return stories;
     }
 
-    public void setStories(List<News> stories) {
+    public void setStories(List<Story> stories) {
         this.stories = stories;
     }
 
@@ -54,7 +54,7 @@ public class NewsList implements Parcelable {
 
     protected NewsList(Parcel in) {
         this.date = in.readString();
-        this.stories = in.createTypedArrayList(News.CREATOR);
+        this.stories = in.createTypedArrayList(Story.CREATOR);
         this.top_stories = in.createTypedArrayList(TopNews.CREATOR);
     }
 

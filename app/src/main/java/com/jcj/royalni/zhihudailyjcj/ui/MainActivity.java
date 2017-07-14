@@ -1,13 +1,13 @@
 package com.jcj.royalni.zhihudailyjcj.ui;
 
+import android.graphics.Color;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,15 +15,21 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jcj.royalni.zhihudailyjcj.Obversable.ObservableFromHttp;
 import com.jcj.royalni.zhihudailyjcj.R;
+import com.jcj.royalni.zhihudailyjcj.adapter.NewsDateItemDecoration;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsListAdapter;
-import com.jcj.royalni.zhihudailyjcj.bean.News;
+import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
 import com.jcj.royalni.zhihudailyjcj.net.Http;
 import com.jcj.royalni.zhihudailyjcj.utils.Constants;
-import com.jcj.royalni.zhihudailyjcj.utils.NewsScollListener;
+import com.jcj.royalni.zhihudailyjcj.utils.NewsAutoRefreshScollListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import butterknife.Bind;
 import rx.Observable;
@@ -44,95 +50,102 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     Toolbar mToolbar;
 
     private String curDate;
-    private List<News> newses = new ArrayList<>();
+    private List<Story> stories = new ArrayList<>();
     private NewsListAdapter mAdapter;
-    private NewsScollListener newsScollListener;
+    private NewsAutoRefreshScollListener mNewsAutoRefreshScollListener;
+    private boolean onlyAddItemDecorationOnce = true;
+    private NewsDateItemDecoration newsDateItemDecoration;
 
     @Override
     protected void afterCreate(Bundle savedInstanceState) {
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
+        mToolbar.setTitle("首页");
+        mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
 
         RecyclerView.LayoutManager ll = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        mAdapter = new NewsListAdapter(newses);
+        mAdapter = new NewsListAdapter(stories);
+        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(ll);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mAdapter);
-        newsScollListener = new NewsScollListener((LinearLayoutManager)ll) {
+        mNewsAutoRefreshScollListener = new NewsAutoRefreshScollListener((LinearLayoutManager)ll) {
             @Override
             public void loadMoreData() {
                 loadBeforeData(curDate);
             }
         };
-        mRecyclerView.addOnScrollListener(newsScollListener);
+        mRecyclerView.addOnScrollListener(mNewsAutoRefreshScollListener);
     }
 
-    private void loadBeforeData(final String date) {
-        Observable.just(Constants.BEFORE_NEWS_URL)
-                .map(new Func1<String, List<News>>() {
-                    @Override
-                    public List<News> call(String s) {
-                        String json = Http.getJsonFromHtml(s,date);
-                        Gson gson = new Gson();
-                        TypeToken<NewsList> newsListTypeToken = TypeToken.get(NewsList.class);
-                        NewsList newsList = gson.fromJson(json, newsListTypeToken.getType());
-                        List<News> newses = newsList.getStories();
-                        curDate = newsList.getDate();
-                        return newses;
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<News>>() {
-                    @Override
-                    public void call(List<News> newsList) {
-                        newsScollListener.setLoading(false);
-                        System.out.println("Action1");
-                        newses.addAll(newsList);
-                        mAdapter.updateData(newses);
-                    }
-                });
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mAdapter.getNewsLists().size() == 0) {
+        if (mAdapter.getStories().size() == 0) {
             loadLatestData();
         }
     }
 
-    private void loadLatestData() {
-        Observable.just(Constants.LATEST_NEWS_URL)
-                .map(new Func1<String, List<News>>() {
+    /**
+     * 按日期加载旧信息
+     * @param date
+     */
+    private void loadBeforeData(final String date) {
+        Observable.just(Constants.BEFORE_NEWS_URL)
+                .map(new Func1<String, List<Story>>() {
                     @Override
-                    public List<News> call(String s) {
-                        String json = Http.getJsonFromHtml(s);
+                    public List<Story> call(String s) {
+                        String json = Http.getJsonFromHtml(s,date);
                         Gson gson = new Gson();
                         TypeToken<NewsList> newsListTypeToken = TypeToken.get(NewsList.class);
                         NewsList newsList = gson.fromJson(json, newsListTypeToken.getType());
-                        List<News> newses = newsList.getStories();
+                        List<Story> stories = newsList.getStories();
                         curDate = newsList.getDate();
-                        System.out.println("curDate="+curDate);
-                        return newses;
+                        for(Story story : stories) {
+                            story.setDate(curDate);
+                        }
+                        return stories;
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<News>>() {
+                .subscribe(new Action1<List<Story>>() {
                     @Override
-                    public void onCompleted() {
-                        mAdapter.updateData(newses);
+                    public void call(List<Story> newsList) {
+                        mNewsAutoRefreshScollListener.setLoading(false);
+                        stories.addAll(newsList);
+                        mAdapter.updateData(stories);
+                        //不知道为什么不加这一句，在用完刷新最新新闻以后总是会报错，
+                        // 读取到的信息总是不能赋值给newsDateItemDecoration中
+                        newsDateItemDecoration.setStories(stories);
                     }
-
+                });
+    }
+    /**
+     * 加载最新消息
+     */
+    private void loadLatestData() {
+        ObservableFromHttp.getLatestDataObversable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<NewsList>() {
                     @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(List<News> newsList) {
-                        newses = newsList;
-
-                        System.out.println(newses);
+                    public void call(NewsList newsList) {
+                        stories = newsList.getStories();
+                        if (stories != null) {
+                            curDate = newsList.getDate();
+                            for(Story story : stories) {
+                                story.setDate(curDate);
+                            }
+                            if (onlyAddItemDecorationOnce) {
+                                onlyAddItemDecorationOnce = false;
+                                newsDateItemDecoration = new NewsDateItemDecoration(MainActivity.this, stories);
+                                mRecyclerView.addItemDecoration(newsDateItemDecoration);
+                            }
+                            mAdapter.updateData(stories);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
                     }
                 });
     }
@@ -140,6 +153,11 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     @Override
     protected int getLayoutResId() {
         return R.layout.activity_main;
+    }
+
+    @Override
+    public void onRefresh() {
+        loadLatestData();
     }
 
     @Override
@@ -156,8 +174,4 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onRefresh() {
-
-    }
 }

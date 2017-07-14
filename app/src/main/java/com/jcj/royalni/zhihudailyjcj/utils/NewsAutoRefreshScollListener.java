@@ -8,17 +8,17 @@ import android.util.Log;
  * Created by Royal Ni on 2017/7/5.
  */
 
-public abstract class NewsScollListener extends RecyclerView.OnScrollListener{
+public abstract class NewsAutoRefreshScollListener extends RecyclerView.OnScrollListener{
     private LinearLayoutManager layoutManager;
     private int totalItemCount;
     private int lastVisibleItemPosition;
     private boolean loading = false;
 
-    public NewsScollListener(LinearLayoutManager layoutManager) {
+    public NewsAutoRefreshScollListener(LinearLayoutManager layoutManager) {
         this.layoutManager = layoutManager;
     }
 
-
+    //当recyclerview滑动时调用此方法
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);

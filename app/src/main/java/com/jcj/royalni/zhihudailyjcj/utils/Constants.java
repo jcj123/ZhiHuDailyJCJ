@@ -8,7 +8,7 @@ import java.util.Locale;
  */
 
 public class Constants {
-
+    public static final String BASIC_NEWS_URL = "https://news-at.zhihu.com/api/4/news/";
     public static final String BEFORE_NEWS_URL = "https://news-at.zhihu.com/api/4/news/before/";
     public static final String LATEST_NEWS_URL = "https://news-at.zhihu.com/api/4/news/latest";
 

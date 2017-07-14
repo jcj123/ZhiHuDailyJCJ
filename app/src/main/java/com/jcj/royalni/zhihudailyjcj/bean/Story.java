@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by laucherish on 16/3/15.
  */
-public class News implements Parcelable {
+public class Story implements Parcelable {
     private int type;
     private int id;
     private String ga_prefix;
@@ -88,10 +88,10 @@ public class News implements Parcelable {
         dest.writeByte(isRead ? (byte) 1 : (byte) 0);
     }
 
-    public News() {
+    public Story() {
     }
 
-    protected News(Parcel in) {
+    protected Story(Parcel in) {
         this.type = in.readInt();
         this.id = in.readInt();
         this.ga_prefix = in.readString();
@@ -100,19 +100,19 @@ public class News implements Parcelable {
         this.isRead = in.readByte() != 0;
     }
 
-    public static final Creator<News> CREATOR = new Creator<News>() {
-        public News createFromParcel(Parcel source) {
-            return new News(source);
+    public static final Creator<Story> CREATOR = new Creator<Story>() {
+        public Story createFromParcel(Parcel source) {
+            return new Story(source);
         }
 
-        public News[] newArray(int size) {
-            return new News[size];
+        public Story[] newArray(int size) {
+            return new Story[size];
         }
     };
 
     @Override
     public String toString() {
-        return "News{title='" + title + '\'' +
+        return "Story{title='" + title + '\'' +
                 "isRead=" + isRead +
                 ", date='" + date + '\'' +
                 '}';
