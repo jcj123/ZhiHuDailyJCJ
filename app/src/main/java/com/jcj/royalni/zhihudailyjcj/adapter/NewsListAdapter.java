@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.jcj.royalni.zhihudailyjcj.NewsApp;
 import com.jcj.royalni.zhihudailyjcj.R;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
+import com.jcj.royalni.zhihudailyjcj.db.NewsDatabase;
 import com.jcj.royalni.zhihudailyjcj.ui.NewsDetailActivity;
 
 import java.text.SimpleDateFormat;
@@ -30,12 +31,20 @@ import butterknife.ButterKnife;
  */
 
 public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsListViewHolder> {
-//    private static final int ITEM_NEWS = 0;
+    //    private static final int ITEM_NEWS = 0;
 //    private static final int ITEM_NEWS_HEADER = 1;
     private List<Story> stories = new ArrayList<>();
 
+    private NewsDatabase database;
+    private List newsHasRead;
+
+    public void setNewsHasRead(List newsHasRead) {
+        this.newsHasRead = newsHasRead;
+    }
+
     public NewsListAdapter(List<Story> stories) {
         this.stories = stories;
+        database = NewsApp.getDatabase();
     }
 
     public void setStories(List<Story> stories) {
@@ -50,7 +59,6 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
         setStories(stories);
         notifyDataSetChanged();
     }
-
 
 
     @Override
@@ -79,18 +87,27 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
 //            String date = DateUtil.formatDate(story.getDate());
 //            dateHolder.tv_date.setText(date);
 //        }else {
+
         holder.tvTitle.setText(story.getTitle());
+        if (story.isRead()) {
+            holder.tvTitle.setTextColor(Color.GRAY);
+        }else {
+            holder.tvTitle.setTextColor(Color.BLACK);
+        }
         String imageUrl = story.getImages().get(0);
         Glide.with(NewsApp.getInstance()).load(imageUrl).into(holder.ivNews);
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (story.isRead() != true) {
-                    story.setRead(true);
+                if (!story.isRead()) {
                     holder.tvTitle.setTextColor(Color.GRAY);
                     //将信息更新至数据库中
+                    story.setRead(true);
+                    database.insert(story);
+                }else {
+                    holder.tvTitle.setTextColor(Color.GRAY);
                 }
-                NewsDetailActivity.startNewsDetailActivity(NewsApp.getInstance(),story);
+                NewsDetailActivity.startNewsDetailActivity(NewsApp.getInstance(), story);
             }
         });
 //        }
@@ -108,21 +125,22 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
         TextView tvTitle;
         @Bind(R.id.cv_item)
         CardView cardView;
+
         public NewsListViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
     }
 
-    class NewsDateViewHolder extends NewsListViewHolder{
+    class NewsDateViewHolder extends NewsListViewHolder {
         @Bind(R.id.news_header)
         TextView tv_date;
+
         public NewsDateViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this,itemView);
+            ButterKnife.bind(this, itemView);
         }
     }
-
 
 
     //    @Override

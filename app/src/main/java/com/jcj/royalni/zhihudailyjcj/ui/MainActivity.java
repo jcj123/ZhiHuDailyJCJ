@@ -13,12 +13,14 @@ import android.view.MenuItem;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jcj.royalni.zhihudailyjcj.NewsApp;
 import com.jcj.royalni.zhihudailyjcj.Obversable.ObservableFromHttp;
 import com.jcj.royalni.zhihudailyjcj.R;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsDateItemDecoration;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsListAdapter;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
+import com.jcj.royalni.zhihudailyjcj.db.NewsDatabase;
 import com.jcj.royalni.zhihudailyjcj.net.Http;
 import com.jcj.royalni.zhihudailyjcj.utils.Constants;
 import com.jcj.royalni.zhihudailyjcj.utils.NewsAutoRefreshScollListener;
@@ -55,6 +57,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private NewsAutoRefreshScollListener mNewsAutoRefreshScollListener;
     private boolean onlyAddItemDecorationOnce = true;
     private NewsDateItemDecoration newsDateItemDecoration;
+    private NewsDatabase newsDatabase;
+    private List newsHasRead;
 
     @Override
     protected void afterCreate(Bundle savedInstanceState) {
@@ -64,13 +68,15 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
 
-        RecyclerView.LayoutManager ll = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        newsDatabase = NewsApp.getDatabase();
+
+        RecyclerView.LayoutManager ll = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mAdapter = new NewsListAdapter(stories);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(ll);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mAdapter);
-        mNewsAutoRefreshScollListener = new NewsAutoRefreshScollListener((LinearLayoutManager)ll) {
+        mNewsAutoRefreshScollListener = new NewsAutoRefreshScollListener((LinearLayoutManager) ll) {
             @Override
             public void loadMoreData() {
                 loadBeforeData(curDate);
@@ -90,6 +96,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
     /**
      * 按日期加载旧信息
+     *
      * @param date
      */
     private void loadBeforeData(final String date) {
@@ -97,18 +104,23 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 .map(new Func1<String, List<Story>>() {
                     @Override
                     public List<Story> call(String s) {
-                        String json = Http.getJsonFromHtml(s,date);
+                        newsHasRead = newsDatabase.queryIsRead();
+                        String json = Http.getJsonFromHtml(s, date);
                         Gson gson = new Gson();
                         TypeToken<NewsList> newsListTypeToken = TypeToken.get(NewsList.class);
                         NewsList newsList = gson.fromJson(json, newsListTypeToken.getType());
                         List<Story> stories = newsList.getStories();
                         curDate = newsList.getDate();
-                        for(Story story : stories) {
+                        for (Story story : stories) {
                             story.setDate(curDate);
+                            if (newsHasRead.contains(story.getId())) {
+                                story.setRead(true);
+                            }
                         }
                         return stories;
                     }
-                }).subscribeOn(Schedulers.io())
+                })
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<Story>>() {
                     @Override
@@ -121,7 +133,19 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                         newsDateItemDecoration.setStories(stories);
                     }
                 });
+
     }
+
+    private List<Story> changeStoryStatus(List<Story> stories) {
+        newsHasRead = newsDatabase.queryIsRead();
+        for (Story story : stories) {
+            if (newsHasRead.contains(story.getId())) {
+                story.setRead(true);
+            }
+        }
+        return stories;
+    }
+
     /**
      * 加载最新消息
      */
@@ -133,16 +157,21 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     @Override
                     public void call(NewsList newsList) {
                         stories = newsList.getStories();
+                        newsHasRead = newsDatabase.queryIsRead();
                         if (stories != null) {
                             curDate = newsList.getDate();
-                            for(Story story : stories) {
+                            for (Story story : stories) {
                                 story.setDate(curDate);
+                                if (newsHasRead.contains(story.getId())) {
+                                    story.setRead(true);
+                                }
                             }
                             if (onlyAddItemDecorationOnce) {
                                 onlyAddItemDecorationOnce = false;
-                                newsDateItemDecoration = new NewsDateItemDecoration(MainActivity.this, stories);
+                                newsDateItemDecoration = new NewsDateItemDecoration(MainActivity.this, stories, mToolbar);
                                 mRecyclerView.addItemDecoration(newsDateItemDecoration);
                             }
+
                             mAdapter.updateData(stories);
                             mSwipeRefreshLayout.setRefreshing(false);
                         }
@@ -162,7 +191,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.news_main,menu);
+        getMenuInflater().inflate(R.menu.news_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

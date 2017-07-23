@@ -29,7 +29,6 @@ public abstract class NewsAutoRefreshScollListener extends RecyclerView.OnScroll
         //在这里加loading的目的在于，如果不加的话，在lastVisibleItemPosition > totalItemCount -2的那一瞬间
         //很可能这个条件会满足若干次，loadMoreData()方法执行若干次导致数据错误
         if (!loading && lastVisibleItemPosition > totalItemCount -2 && dy>0) {
-            System.out.println("onScrolled");
             loadMoreData();
             loading = true;
         }

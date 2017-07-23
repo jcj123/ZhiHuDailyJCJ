@@ -6,7 +6,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -31,7 +33,9 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
     private Rect mBounds;
     private int mTextSize;
 
-    public NewsDateItemDecoration(Context context, List<Story> stories) {
+    private Toolbar toolbar;
+
+    public NewsDateItemDecoration(Context context, List<Story> stories, Toolbar toolbar) {
         mContext = context;
         this.stories = stories;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -42,6 +46,7 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
         mTitleHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30,
                 context.getResources().getDisplayMetrics());
         mBounds = new Rect();
+        this.toolbar = toolbar;
     }
 
 
@@ -68,21 +73,27 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
         super.onDraw(canvas, parent, state);
         final int left;
         final int right;
+        int firstVisibleItemPosition=0;
         left = parent.getPaddingLeft();
         right = parent.getWidth() - parent.getPaddingRight();
 
         final int childCount = parent.getChildCount();
-
+        final RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
+        if (layoutManager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
+            firstVisibleItemPosition = linearManager.findFirstVisibleItemPosition();
+        }
         for (int i = 0; i < childCount; i++) {
             final View child = parent.getChildAt(i);
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
             int position = lp.getViewLayoutPosition();
             if (stories.size() > 0) {
                 if (position == 0) {
-                    drawTitle(canvas, left, right, child, lp, position);
+                    drawTitle(canvas, left, right, child, firstVisibleItemPosition, position);
                 } else {
-                    if (null != stories.get(position).getDate() && !stories.get(position - 1).getDate().equals(stories.get(position).getDate())) {
-                        drawTitle(canvas, left, right, child, lp, position);
+                    if (null != stories.get(position).getDate() && !stories.get(position - 1).getDate()
+                            .equals(stories.get(position).getDate())) {
+                        drawTitle(canvas, left, right, child, firstVisibleItemPosition, position);
                     }
                 }
             }
@@ -90,12 +101,18 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
-    private void drawTitle(Canvas c, int left, int right, View child, RecyclerView.LayoutParams params, int position) {
+    private void drawTitle(Canvas c, int left, int right, View child, int firstVisibleItemPosition, int position) {
         mPaint.setColor(Color.BLACK);
         String date = DateUtil.formatDate(stories.get(position).getDate());
+        String firstVisibleItemPositionDate = DateUtil.formatDate(stories.get(firstVisibleItemPosition).getDate());
         if (position == 0) {
             date = "今日热点";
+            toolbar.setTitle(date);
+        }else if(date.equals(firstVisibleItemPositionDate)){
+            toolbar.setTitle(date);
+
         }
+
         mPaint.getTextBounds(date, 0, date.length(), mBounds);
         c.drawText(date, child.getPaddingLeft() + mTitleHeight / 2, child.getTop() - mTitleHeight / 2, mPaint);
     }
