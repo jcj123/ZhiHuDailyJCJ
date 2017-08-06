@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#3873f7</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="white">#ffffff</color>
+    <color name="background_gray">#ebeae9</color>
+    <!--市场页面-->
+    <color name="tab_unselcted">#afc1fb</color>
+    <color name="text_gray">#7d7d7d</color>
+    <color name="button_gray">#bcbcbc</color>
+    <color name="black">#000000</color>
+    <color name="project_id">#3873f7</color>
+
+    <color name="red_label">#f97a7a</color>
+    <color name="red_button">#f84949</color>
+	<color name="simiple_button_color">#FFF</color>
+    <color name="link_color">#FF0066CC</color>
+    <color name="gl_background">#737373</color>
+
+    <color name="gray_tab">#7d7d7d</color>
+    <color name="gray_text">#a2a4a8</color>
+
+    <color name="gray_button_collection">#bababa</color>
+    <color name="red_button_collection">#f84949</color>
+
+    <color name="transparent">#0000</color>
+
 </resources>

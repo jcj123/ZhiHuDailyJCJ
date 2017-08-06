@@ -1,83 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.jcj.royalni.zhihudailyjcj.ui.SwipeBackLayout
+    android:id="@+id/swipe_back_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="256dp"
-            android:fitsSystemWindows="true"
-            app:contentScrim="@color/colorPrimaryDark"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlwaysCollapsed"
-            app:expandedTitleTextAppearance="@style/CollapsingToolbarTitleStyle.expanded"
-            app:collapsedTitleTextAppearance="@style/CollapsingToolbarTitleStyle.collapsed"
-            app:title="JCJ日报">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:id="@+id/iv_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:background="@drawable/bg_shadow_mask"
-                    />
-
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="bottom"
-                    android:background="@drawable/bg_shadow_mask"
-                    ></ImageView>
-                <TextView
-                    android:id="@+id/detail_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="25dp"
-                    android:padding="16dp"
-                    android:text="nihsaihdahfoiashfioadshoahfihdaioghaog"
-                    android:textColor="@android:color/white"
-                    android:textSize="22sp" />
-
-                <TextView
-                    android:id="@+id/tv_image_from"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginBottom="25dp"
-                    android:layout_marginRight="12dp"
-                    android:text="图片来源"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/white" />
-            </FrameLayout>
-
-            <include layout="@layout/include_toolbar"></include>
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.widget.NestedScrollView
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
-        <WebView
-            android:id="@+id/detail_webview"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="256dp"
+                android:fitsSystemWindows="true"
+                app:collapsedTitleTextAppearance="@style/CollapsingToolbarTitleStyle.collapsed"
+                app:contentScrim="@color/colorPrimaryDark"
+                app:expandedTitleTextAppearance="@style/CollapsingToolbarTitleStyle.expanded"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlwaysCollapsed"
+                app:title="JCJ日报">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/iv_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fitsSystemWindows="true"
+                        android:background="@drawable/bg_shadow_mask"
+                        android:scaleType="centerCrop" />
+
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bg_shadow_mask"></ImageView>
+
+                    <TextView
+                        android:id="@+id/detail_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_marginBottom="25dp"
+                        android:padding="16dp"
+                        android:textColor="@android:color/white"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/tv_image_from"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginBottom="25dp"
+                        android:layout_marginRight="12dp"
+                        android:text="图片来源"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <include layout="@layout/include_toolbar"></include>
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbars="vertical"></WebView>
-    </android.support.v4.widget.NestedScrollView>
-</android.support.design.widget.CoordinatorLayout>
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <WebView
+                android:id="@+id/detail_webview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"></WebView>
+        </android.support.v4.widget.NestedScrollView>
+    </android.support.design.widget.CoordinatorLayout>
+</com.jcj.royalni.zhihudailyjcj.ui.SwipeBackLayout>

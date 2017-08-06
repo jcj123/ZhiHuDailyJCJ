@@ -16,6 +16,9 @@ import android.view.View;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.utils.DateUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,9 +62,7 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
             if (position == 0) {
                 outRect.set(0, mTitleHeight, 0, 0);
             } else {
-                Log.d(TAG,"storiesSize"+stories.size());
-                Log.d(TAG,"position"+position);
-                if (null != stories.get(position).getDate() & !stories.get(position - 1).getDate().equals(stories.get(position).getDate())) {
+                if (null != stories.get(position).getDate() && !stories.get(position - 1).getDate().equals(stories.get(position).getDate())) {
                     outRect.set(0, mTitleHeight, 0, 0);
                 }
             }
@@ -104,13 +105,14 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
     private void drawTitle(Canvas c, int left, int right, View child, int firstVisibleItemPosition, int position) {
         mPaint.setColor(Color.BLACK);
         String date = DateUtil.formatDate(stories.get(position).getDate());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String today = DateUtil.formatDate(sdf.format(new Date()));
         String firstVisibleItemPositionDate = DateUtil.formatDate(stories.get(firstVisibleItemPosition).getDate());
-        if (position == 0) {
+        if (date.equals(today)) {
             date = "今日热点";
             toolbar.setTitle(date);
-        }else if(date.equals(firstVisibleItemPositionDate)){
-            toolbar.setTitle(date);
-
+        }else{
+            toolbar.setTitle(firstVisibleItemPositionDate);
         }
 
         mPaint.getTextBounds(date, 0, date.length(), mBounds);

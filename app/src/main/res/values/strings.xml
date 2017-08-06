@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">知Ni乎！</string>
+    <string name="internet_error_tip">"当前网络出现了问题，请检查网络。"</string>
+
 </resources>

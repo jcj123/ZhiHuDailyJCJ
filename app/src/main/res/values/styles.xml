@@ -14,7 +14,16 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-
+    <style name="AppTheme.TransparentActivity" parent="NewsTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+    <style name="myTransparent" parent="NewsTheme">
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
+    </style>
     <style name="CollapsingToolbarTitleStyle.expanded" parent="@android:style/TextAppearance">
         <item name="android:textColor">@android:color/transparent</item>
     </style>
@@ -22,5 +31,17 @@
     <style name="CollapsingToolbarTitleStyle.collapsed" parent="@android:style/TextAppearance">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">20sp</item>
+    </style>
+    <style name="failed_page_button">
+        <item name="android:background">@drawable/failed_blue_button_round_border</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:paddingLeft">25dp</item>
+        <item name="android:paddingRight">25dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginTop">25dp</item>
     </style>
 </resources>

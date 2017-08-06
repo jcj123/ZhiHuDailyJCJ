@@ -1,47 +1,37 @@
 package com.jcj.royalni.zhihudailyjcj.ui;
 
 import android.graphics.Color;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jcj.royalni.zhihudailyjcj.NewsApp;
-import com.jcj.royalni.zhihudailyjcj.Obversable.ObservableFromHttp;
 import com.jcj.royalni.zhihudailyjcj.R;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsDateItemDecoration;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsListAdapter;
-import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
+import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.db.NewsDatabase;
-import com.jcj.royalni.zhihudailyjcj.net.Http;
-import com.jcj.royalni.zhihudailyjcj.utils.Constants;
+import com.jcj.royalni.zhihudailyjcj.presenter.HomePagePresenter;
 import com.jcj.royalni.zhihudailyjcj.utils.NewsAutoRefreshScollListener;
+import com.jcj.royalni.zhihudailyjcj.utils.ToastUtil;
+import com.jcj.royalni.zhihudailyjcj.view.IHomePageView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 import butterknife.Bind;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
-public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener, IHomePageView {
     private static final String Tag = "MainActivity";
 
     @Bind(R.id.swipe_refreshlayout)
@@ -50,7 +40,14 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     RecyclerView mRecyclerView;
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
-
+    @Bind(R.id.iv_empty)
+    ImageView ivTip;
+    @Bind(R.id.tv_empty_tip)
+    TextView tvTip;
+    @Bind(R.id.tv_empty_button)
+    TextView tvEmptyButton;
+    @Bind(R.id.empty_view)
+    View emptyView;
     private String curDate;
     private List<Story> stories = new ArrayList<>();
     private NewsListAdapter mAdapter;
@@ -60,6 +57,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private NewsDatabase newsDatabase;
     private List newsHasRead;
 
+    private HomePagePresenter presenter;
+
     @Override
     protected void afterCreate(Bundle savedInstanceState) {
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -68,6 +67,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
 
+        presenter = new HomePagePresenter(this);
         newsDatabase = NewsApp.getDatabase();
 
         RecyclerView.LayoutManager ll = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         mNewsAutoRefreshScollListener = new NewsAutoRefreshScollListener((LinearLayoutManager) ll) {
             @Override
             public void loadMoreData() {
-                loadBeforeData(curDate);
+                presenter.loadBeforeData(curDate);
             }
         };
         mRecyclerView.addOnScrollListener(mNewsAutoRefreshScollListener);
@@ -90,93 +90,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     protected void onResume() {
         super.onResume();
         if (mAdapter.getStories().size() == 0) {
-            loadLatestData();
+            presenter.loadLatestData();
         }
-    }
-
-    /**
-     * 按日期加载旧信息
-     *
-     * @param date
-     */
-    private void loadBeforeData(final String date) {
-        Observable.just(Constants.BEFORE_NEWS_URL)
-                .map(new Func1<String, List<Story>>() {
-                    @Override
-                    public List<Story> call(String s) {
-                        newsHasRead = newsDatabase.queryIsRead();
-                        String json = Http.getJsonFromHtml(s, date);
-                        Gson gson = new Gson();
-                        TypeToken<NewsList> newsListTypeToken = TypeToken.get(NewsList.class);
-                        NewsList newsList = gson.fromJson(json, newsListTypeToken.getType());
-                        List<Story> stories = newsList.getStories();
-                        curDate = newsList.getDate();
-                        for (Story story : stories) {
-                            story.setDate(curDate);
-                            if (newsHasRead.contains(story.getId())) {
-                                story.setRead(true);
-                            }
-                        }
-                        return stories;
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Story>>() {
-                    @Override
-                    public void call(List<Story> newsList) {
-                        mNewsAutoRefreshScollListener.setLoading(false);
-                        stories.addAll(newsList);
-                        mAdapter.updateData(stories);
-                        //不知道为什么不加这一句，在用完刷新最新新闻以后总是会报错，
-                        // 读取到的信息总是不能赋值给newsDateItemDecoration中
-                        newsDateItemDecoration.setStories(stories);
-                    }
-                });
-
-    }
-
-    private List<Story> changeStoryStatus(List<Story> stories) {
-        newsHasRead = newsDatabase.queryIsRead();
-        for (Story story : stories) {
-            if (newsHasRead.contains(story.getId())) {
-                story.setRead(true);
-            }
-        }
-        return stories;
-    }
-
-    /**
-     * 加载最新消息
-     */
-    private void loadLatestData() {
-        ObservableFromHttp.getLatestDataObversable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<NewsList>() {
-                    @Override
-                    public void call(NewsList newsList) {
-                        stories = newsList.getStories();
-                        newsHasRead = newsDatabase.queryIsRead();
-                        if (stories != null) {
-                            curDate = newsList.getDate();
-                            for (Story story : stories) {
-                                story.setDate(curDate);
-                                if (newsHasRead.contains(story.getId())) {
-                                    story.setRead(true);
-                                }
-                            }
-                            if (onlyAddItemDecorationOnce) {
-                                onlyAddItemDecorationOnce = false;
-                                newsDateItemDecoration = new NewsDateItemDecoration(MainActivity.this, stories, mToolbar);
-                                mRecyclerView.addItemDecoration(newsDateItemDecoration);
-                            }
-
-                            mAdapter.updateData(stories);
-                            mSwipeRefreshLayout.setRefreshing(false);
-                        }
-                    }
-                });
     }
 
     @Override
@@ -186,7 +101,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
     @Override
     public void onRefresh() {
-        loadLatestData();
+        presenter.loadLatestData();
     }
 
     @Override
@@ -201,6 +116,80 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void loadBeforeDataSucc(List<Story> newsList, String curDate) {
+        this.curDate = curDate;
+        mNewsAutoRefreshScollListener.setLoading(false);
+        stories.addAll(newsList);
+        mAdapter.updateData(stories);
+        //不知道为什么不加这一句，在用完刷新最新新闻以后总是会报错，
+        // 读取到的信息总是不能赋值给newsDateItemDecoration中
+        newsDateItemDecoration.setStories(stories);
+    }
+
+    @Override
+    public void loadLatestDataSucc(NewsList newsList) {
+        stories = newsList.getStories();
+        newsHasRead = newsDatabase.queryIsRead();
+        if (stories != null) {
+            curDate = newsList.getDate();
+            for (Story story : stories) {
+                story.setDate(curDate);
+                if (newsHasRead.contains(story.getId())) {
+                    story.setRead(true);
+                }
+            }
+            if (onlyAddItemDecorationOnce) {
+                onlyAddItemDecorationOnce = false;
+                newsDateItemDecoration = new NewsDateItemDecoration(MainActivity.this, stories, mToolbar);
+                mRecyclerView.addItemDecoration(newsDateItemDecoration);
+            }
+
+            mAdapter.updateData(stories);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void initErrorView() {
+        ivTip.setImageDrawable(getResources().getDrawable(R.drawable.failed_tip_no_wifi));
+        tvTip.setText("当前网络出现了问题，请检查网络");
+        tvEmptyButton.setText("点击刷新");
+        tvEmptyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showErrorView(false);
+                presenter.loadLatestData();
+            }
+        });
+    }
+
+    private void showErrorView(boolean showEmptyView) {
+        if (showEmptyView) {
+            ToastUtil.show("网络错误");
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
+            emptyView.setVisibility(View.VISIBLE);
+            mAdapter.updateData(Collections.EMPTY_LIST);
+        } else {
+            mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+    @Override
+    public void loadLatestDataFail() {
+        initErrorView();
+        showErrorView(true);
+    }
+
+    @Override
+    public void loadBeforeDataFail() {
+        initErrorView();
+        showErrorView(true);
     }
 
 }
