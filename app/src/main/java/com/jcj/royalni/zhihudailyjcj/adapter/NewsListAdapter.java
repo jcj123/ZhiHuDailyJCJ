@@ -118,6 +118,8 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
         return stories == null ? 0 : stories.size();
     }
 
+
+
     class NewsListViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.iv_news)
         ImageView ivNews;

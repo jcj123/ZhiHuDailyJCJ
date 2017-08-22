@@ -4,9 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.AttrRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -114,19 +111,22 @@ public class SwipeBackLayout extends FrameLayout {
         setShadow();//设置侧滑的边框，这个方法的代码下面写哈
 
     }
+
     @Override
     public void computeScroll() {
         super.computeScroll();
-        mScrimOpacity=1-mScrollPercent;
+        mScrimOpacity = 1 - mScrollPercent;
         //一定要做这个操作，否则onViewReleased不起作用
-        if (mViewDragHelper!=null&&mViewDragHelper.continueSettling(true)) {
+        if (mViewDragHelper != null && mViewDragHelper.continueSettling(true)) {
             invalidate();
         }
     }
+
     public void setShadow() {
-        mShadowLeft=getResources().getDrawable(R.drawable.shadow_left);
+        mShadowLeft = getResources().getDrawable(R.drawable.shadow_left);
         invalidate();
     }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -138,16 +138,19 @@ public class SwipeBackLayout extends FrameLayout {
         //也就是activity的主要布局
         mContentView = getChildAt(0);
     }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);    //获取当前界面宽度
         mContentWidth = mContentView.getWidth();
     }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         //把事件传递给
         return mViewDragHelper.shouldInterceptTouchEvent(ev);
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //把事件传递给ViewDragHelper
@@ -167,16 +170,20 @@ public class SwipeBackLayout extends FrameLayout {
         }
         return ret;
     }
+
     //这个是那个阴影线
     private void drawShadow(Canvas canvas, View child) {
         final Rect childRect = mTmpRect;
         child.getHitRect(childRect);
-        mShadowLeft.setBounds(childRect.left - mShadowLeft.getIntrinsicWidth(), childRect.top,childRect.left, childRect.bottom);
-        mShadowLeft.setAlpha((int) (mScrimOpacity * FULL_ALPHA));    mShadowLeft.draw(canvas);
+        mShadowLeft.setBounds(childRect.left - mShadowLeft.getIntrinsicWidth(), childRect.top, childRect.left, childRect.bottom);
+        mShadowLeft.setAlpha((int) (mScrimOpacity * FULL_ALPHA));
+        mShadowLeft.draw(canvas);
     }
+
     //这个就是画那个透明渐变出来的帷幕，还真™不知道怎么形容
     private void drawScrim(Canvas canvas, View child) {
-        final int baseAlpha = (mScrimColor & 0xff000000) >>> 24;    final int alpha = (int) (baseAlpha * mScrimOpacity);
+        final int baseAlpha = (mScrimColor & 0xff000000) >>> 24;
+        final int alpha = (int) (baseAlpha * mScrimOpacity);
         final int color = alpha << 24 | (mScrimColor & 0xffffff);
         canvas.clipRect(0, 0, child.getLeft(), getHeight());
         canvas.drawColor(color);
@@ -194,7 +201,3 @@ public class SwipeBackLayout extends FrameLayout {
     }
 
 }
-
-
-
-

@@ -1,5 +1,6 @@
 package com.jcj.royalni.zhihudailyjcj.view;
 
+import com.jcj.royalni.zhihudailyjcj.bean.NewsDetail;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
 
@@ -16,4 +17,5 @@ public interface IHomePageView {
     void loadBeforeDataSucc(List<Story> newsList, String curDate);
     void loadBeforeDataFail();
 
+    void loadTopNewsSucc(List<NewsDetail> newsDetails);
 }

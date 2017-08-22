@@ -46,7 +46,7 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
                 context.getResources().getDisplayMetrics());
         mPaint.setTextSize(mTextSize);
 
-        mTitleHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30,
+        mTitleHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
                 context.getResources().getDisplayMetrics());
         mBounds = new Rect();
         this.toolbar = toolbar;
@@ -58,11 +58,11 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
         super.getItemOffsets(outRect, view, parent, state);
         RecyclerView.LayoutParams lm = (RecyclerView.LayoutParams) view.getLayoutParams();
         int position = lm.getViewLayoutPosition();
-        if (position > -1) {
-            if (position == 0) {
+        if (position > 0) {
+            if (position == 1) {
                 outRect.set(0, mTitleHeight, 0, 0);
             } else {
-                if (null != stories.get(position).getDate() && !stories.get(position - 1).getDate().equals(stories.get(position).getDate())) {
+                if (null != stories.get(position-1).getDate() && !stories.get(position - 2).getDate().equals(stories.get(position-1).getDate())) {
                     outRect.set(0, mTitleHeight, 0, 0);
                 }
             }
@@ -88,13 +88,13 @@ public class NewsDateItemDecoration extends RecyclerView.ItemDecoration {
             final View child = parent.getChildAt(i);
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
             int position = lp.getViewLayoutPosition();
-            if (stories.size() > 0) {
-                if (position == 0) {
+            if (stories.size() > 0&&position>0) {
+                if (position == 1) {
                     drawTitle(canvas, left, right, child, firstVisibleItemPosition, position);
                 } else {
-                    if (null != stories.get(position).getDate() && !stories.get(position - 1).getDate()
-                            .equals(stories.get(position).getDate())) {
-                        drawTitle(canvas, left, right, child, firstVisibleItemPosition, position);
+                    if (null != stories.get(position-1).getDate() && !stories.get(position - 2).getDate()
+                            .equals(stories.get(position-1).getDate())) {
+                        drawTitle(canvas, left, right, child, firstVisibleItemPosition, position-1);
                     }
                 }
             }

@@ -144,4 +144,9 @@ public class NewsDetail implements Parcelable {
             return new NewsDetail[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

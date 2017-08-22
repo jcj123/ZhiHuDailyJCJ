@@ -26,7 +26,7 @@ public class DetailPageModel implements IDetailPageModel {
                     @Override
                     public void call(NewsDetail newsDetail) {
                         if (newsDetail!=null) {
-                            listener.showSucc( newsDetail);
+                            listener.showSucc(newsDetail);
                         }else {
                             listener.showFail();
                         }

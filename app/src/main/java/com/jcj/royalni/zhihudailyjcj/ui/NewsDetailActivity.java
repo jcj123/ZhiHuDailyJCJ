@@ -2,12 +2,17 @@ package com.jcj.royalni.zhihudailyjcj.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -22,16 +27,13 @@ import com.jcj.royalni.zhihudailyjcj.utils.HtmlUtil;
 import com.jcj.royalni.zhihudailyjcj.view.IDetailPageView;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  * Created by Royal Ni on 2017/7/7.
  */
 
-public class NewsDetailActivity extends BaseActivity implements IDetailPageView {
+public class NewsDetailActivity extends BaseActivity implements IDetailPageView, View.OnClickListener {
     public static final String NEWS_KEY = "newsKey";
-    @Bind(R.id.swipe_back_layout)
-    SwipeBackLayout swipeBackLayout;
     private Story mStory;
     @Bind(R.id.iv_detail)
     ImageView mDetailIv;
@@ -52,6 +54,7 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView 
     public static void startNewsDetailActivity(Context context, Story story) {
         Intent intent = new Intent(context, NewsDetailActivity.class);
         intent.putExtra(NEWS_KEY, story);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
@@ -61,20 +64,12 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView 
         mStory = intent.getParcelableExtra(NEWS_KEY);
         setSupportActionBar(mToolbar);
         ActionBar actionBar = getSupportActionBar();
-
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        mCollapsingToolbarLayout.setTitleEnabled(true);
+        mToolbar.setNavigationOnClickListener(this);
         presenter = new DetailPagePresenter(this, mStory);
         presenter.showData();
-
-        swipeBackLayout.setCallBack(new SwipeBackLayout.CallBack() {
-            @Override
-            public void onFinish() {
-                finish();
-            }
-        });
     }
 
     @Override
@@ -87,13 +82,30 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView 
             mDetailWebview = null;
         }
         super.onDestroy();
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_detail, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_detail_news;
+    }
+
+    @Override
+    public void showSucc(NewsDetail newsDetail) {
+        mTvDetail.setText(newsDetail.getTitle());
+        mTvImageFrom.setText(newsDetail.getImage_source());
+        Glide.with(NewsDetailActivity.this).load(newsDetail.getImage()).into(mDetailIv);
+
+        mDetailWebview.setDrawingCacheEnabled(true);
+        String htmlSource = HtmlUtil.createHtmlData(newsDetail, false);
+        //这样显示会在格式上出现一点问题
+//      mDetailWebview.loadDataWithBaseURL(null, htmlSource,"text/html", "utf-8", null);
+        mDetailWebview.loadData(htmlSource, HtmlUtil.MIME_TYPE, HtmlUtil.ENCODING);
     }
 
     @Override
@@ -108,26 +120,12 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView 
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_detail_news;
-    }
-
-    @Override
-    public void showSucc(NewsDetail newsDetail) {
-        mTvDetail.setText(newsDetail.getTitle());
-        System.out.println("newsDetail.getImage_source())=" + newsDetail.getImage_source());
-        mTvImageFrom.setText(newsDetail.getImage_source());
-        Glide.with(NewsDetailActivity.this).load(newsDetail.getImage()).into(mDetailIv);
-
-        mDetailWebview.setDrawingCacheEnabled(true);
-        String htmlSource = HtmlUtil.createHtmlData(newsDetail, false);
-        //这样显示会在格式上出现一点问题
-//                        mDetailWebview.loadDataWithBaseURL(null, htmlSource,"text/html", "utf-8", null);
-        mDetailWebview.loadData(htmlSource, HtmlUtil.MIME_TYPE, HtmlUtil.ENCODING);
-    }
-
-    @Override
     public void showFail() {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        finish();
     }
 }

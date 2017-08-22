@@ -1,11 +1,13 @@
 package com.jcj.royalni.zhihudailyjcj.presenter;
 
+import com.jcj.royalni.zhihudailyjcj.bean.NewsDetail;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.model.HomePageModel;
 import com.jcj.royalni.zhihudailyjcj.model.IHomePageModel;
 import com.jcj.royalni.zhihudailyjcj.model.ILoadBeforeDataListener;
 import com.jcj.royalni.zhihudailyjcj.model.ILoadDataListener;
+import com.jcj.royalni.zhihudailyjcj.model.ILoadTopNewsListener;
 import com.jcj.royalni.zhihudailyjcj.view.IHomePageView;
 
 import java.util.List;
@@ -50,5 +52,15 @@ public class HomePagePresenter {
             }
         });
 
+    }
+
+    public void loadTopNews(List<Story> stories) {
+        model.loadTopNews(stories, new ILoadTopNewsListener() {
+            @Override
+            public void loadTopNewsSucc(List<NewsDetail> newsDetails) {
+                view.loadTopNewsSucc(newsDetails);
+            }
+
+        });
     }
 }

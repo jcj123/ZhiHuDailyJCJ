@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/iv_empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="120dp"
         android:layout_gravity="center_horizontal"/>
 
     <TextView
@@ -15,9 +15,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="10dp" />
 
-    <TextView
-        android:id="@+id/tv_empty_button"
-        style="@style/failed_page_button" />
+    <Button
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/bt_empty_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
 </LinearLayout>

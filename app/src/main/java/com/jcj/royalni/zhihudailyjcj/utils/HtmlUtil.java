@@ -81,7 +81,6 @@ public class HtmlUtil {
     private static String createHtmlData(String html, String css, String js) {
         return css.concat(HIDE_HEADER_STYLE).concat(html).concat(js);
     }
-
     /**
      * 根据News
      * 生成完整的HTML文档

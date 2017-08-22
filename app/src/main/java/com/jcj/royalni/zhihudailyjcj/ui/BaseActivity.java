@@ -1,17 +1,34 @@
 package com.jcj.royalni.zhihudailyjcj.ui;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Window;
+import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 
+import com.jcj.royalni.zhihudailyjcj.utils.swipeback.SwipeBackActivity;
+import com.jcj.royalni.zhihudailyjcj.utils.swipeback.SwipeBackLayout;
 import butterknife.ButterKnife;
 
-public abstract class BaseActivity extends AppCompatActivity {
+/**
+ * Created by laucherish on 16/3/15.
+ */
+public abstract class BaseActivity extends SwipeBackActivity {
+
+    protected SwipeBackLayout mSwipeBackLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            scrollToFinishActivity();
+        }
+        return true;
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutResId());
+        setContentView(getLayoutId());
+        mSwipeBackLayout = getSwipeBackLayout();
+        mSwipeBackLayout.setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
         ButterKnife.bind(this);
         afterCreate(savedInstanceState);
     }
@@ -22,7 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         ButterKnife.unbind(this);
     }
 
-    protected abstract void afterCreate(Bundle savedInstanceState);
+    protected abstract int getLayoutId();
 
-    protected abstract int getLayoutResId();
+    protected abstract void afterCreate(Bundle savedInstanceState);
 }

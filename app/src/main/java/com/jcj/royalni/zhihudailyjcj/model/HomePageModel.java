@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jcj.royalni.zhihudailyjcj.NewsApp;
 import com.jcj.royalni.zhihudailyjcj.Obversable.ObservableFromHttp;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsDateItemDecoration;
+import com.jcj.royalni.zhihudailyjcj.bean.NewsDetail;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
 import com.jcj.royalni.zhihudailyjcj.db.NewsDatabase;
@@ -12,6 +13,7 @@ import com.jcj.royalni.zhihudailyjcj.net.Http;
 import com.jcj.royalni.zhihudailyjcj.ui.MainActivity;
 import com.jcj.royalni.zhihudailyjcj.utils.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
@@ -24,9 +26,10 @@ import rx.schedulers.Schedulers;
  * Created by jcj on 2017/8/5.
  */
 
-public class HomePageModel implements IHomePageModel{
+public class HomePageModel implements IHomePageModel {
     private NewsDatabase newsDatabase;
     private String curDate;
+
     @Override
     public void loadLatestData(final ILoadDataListener listener) {
         ObservableFromHttp.getLatestDataObversable()
@@ -36,9 +39,9 @@ public class HomePageModel implements IHomePageModel{
                     @Override
                     public void call(NewsList newsList) {
 
-                        if (newsList!=null) {
+                        if (newsList != null) {
                             listener.loadLatestDataSucc(newsList);
-                        }else {
+                        } else {
                             listener.loadLatestDataFail();
                         }
                     }
@@ -52,7 +55,7 @@ public class HomePageModel implements IHomePageModel{
                 .map(new Func1<String, List<Story>>() {
                     @Override
                     public List<Story> call(String s) {
-                       List<Story> newsHasRead = newsDatabase.queryIsRead();
+                        List<Story> newsHasRead = newsDatabase.queryIsRead();
                         String json = Http.getJsonFromHtml(s, date);
                         Gson gson = new Gson();
                         TypeToken<NewsList> newsListTypeToken = TypeToken.get(NewsList.class);
@@ -73,12 +76,33 @@ public class HomePageModel implements IHomePageModel{
                 .subscribe(new Action1<List<Story>>() {
                     @Override
                     public void call(List<Story> newsList) {
-                        if (newsList!=null) {
-                            listener.loadBeforeDataSucc(newsList,curDate);
-                        }else {
+                        if (newsList != null) {
+                            listener.loadBeforeDataSucc(newsList, curDate);
+                        } else {
                             listener.loadBeforeDataFail();
                         }
                     }
                 });
     }
+
+    @Override
+    public void loadTopNews(List<Story> stories, final ILoadTopNewsListener loadTopNewsListener) {
+      final   List<NewsDetail> newsDetails = new ArrayList<NewsDetail>();
+        for (int i = 0; i < 5; i++) {
+            Observable<NewsDetail> observable = ObservableFromHttp.getDetailNewsObservable(stories.get(i).getId());
+            observable.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<NewsDetail>() {
+                        @Override
+                        public void call(NewsDetail newsDetail) {
+                            newsDetails.add(newsDetail);
+                            if (newsDetails.size() == 5) {
+                                loadTopNewsListener.loadTopNewsSucc(newsDetails);
+                            }
+                        }
+                    });
+        }
+    }
+
+
 }
