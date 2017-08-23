@@ -82,12 +82,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private List newsHasRead;
 
     private HomePagePresenter presenter;
-    private List<View> datas;
     private RelativeLayout mRlTopNews;
     private CirclePageIndicator mIndicator;
-    private LinearLayout llPointGroup;
-    private int mPointWidth;
-    private View viewRedPoint;
     private TextView mTopNewsTitle;
     private ViewPager viewPager;
 
@@ -136,9 +132,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     }
 
     private void initHeaderDatas() {
-        datas = new ArrayList<>();
         if (stories.size() !=0 ) {
-                presenter.loadTopNews(stories);
+           presenter.loadTopNews(stories);
         }
     }
     @Override
@@ -250,7 +245,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     @Override
     public void loadTopNewsSucc(List<NewsDetail> newsDetails) {
         this.newsDetails = newsDetails;
-        TopNewsAdapter topNewsAdapter = new TopNewsAdapter(newsDetails);
+        TopNewsAdapter topNewsAdapter = new TopNewsAdapter(newsDetails,stories);
         viewPager.setAdapter(topNewsAdapter);
 
         mIndicator.setViewPager(viewPager);

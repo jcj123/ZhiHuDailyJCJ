@@ -86,8 +86,8 @@ public class HomePageModel implements IHomePageModel {
     }
 
     @Override
-    public void loadTopNews(List<Story> stories, final ILoadTopNewsListener loadTopNewsListener) {
-      final   List<NewsDetail> newsDetails = new ArrayList<NewsDetail>();
+    public void loadTopNews(final List<Story> stories, final ILoadTopNewsListener loadTopNewsListener) {
+      final List<NewsDetail> newsDetails = new ArrayList<NewsDetail>();
         for (int i = 0; i < 5; i++) {
             Observable<NewsDetail> observable = ObservableFromHttp.getDetailNewsObservable(stories.get(i).getId());
             observable.subscribeOn(Schedulers.io())
