@@ -1,6 +1,7 @@
 package com.jcj.royalni.zhihudailyjcj.model;
 
 import com.jcj.royalni.zhihudailyjcj.bean.NewsDetail;
+import com.jcj.royalni.zhihudailyjcj.bean.TopNews;
 
 import java.util.List;
 
@@ -9,5 +10,5 @@ import java.util.List;
  */
 
 public interface ILoadTopNewsListener {
-    void loadTopNewsSucc(List<NewsDetail> newsDetails);
+    void loadTopNewsSucc(List<TopNews> topNewses);
 }

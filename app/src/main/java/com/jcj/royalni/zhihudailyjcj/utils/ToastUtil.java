@@ -5,7 +5,6 @@ import android.widget.Toast;
 import com.jcj.royalni.zhihudailyjcj.NewsApp;
 
 /**
- * @author liangchen
  * @data 2017/7/25 15:59
  */
 
@@ -19,10 +18,6 @@ public class ToastUtil {
      * 有则判断内容是否一样，一样判断之前Toast是否消失，是则产生新的Toast，否则不显示
      * 内容不一样则直接显示新的Toast信息
      */
-    private static String oldMsg;
-    private static long oneTime = 0;
-    private static long twoTime = 0;
-
     private static Toast toast;
 
     public static void show(String message) {

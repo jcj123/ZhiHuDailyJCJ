@@ -55,10 +55,10 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
         return stories;
     }
 
-    public void updateData(List<Story> stories) {
-        setStories(stories);
-        notifyDataSetChanged();
-    }
+//    public void updateData(List<Story> stories) {
+//        setStories(stories);
+////        notifyDataSetChanged();
+//    }
 
 
     @Override

@@ -95,6 +95,10 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView,
         return R.layout.activity_detail_news;
     }
 
+    /**
+     * 页面显示成功
+     * @param newsDetail
+     */
     @Override
     public void showSucc(NewsDetail newsDetail) {
         mTvDetail.setText(newsDetail.getTitle());
@@ -107,22 +111,20 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView,
 //      mDetailWebview.loadDataWithBaseURL(null, htmlSource,"text/html", "utf-8", null);
         mDetailWebview.loadData(htmlSource, HtmlUtil.MIME_TYPE, HtmlUtil.ENCODING);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.share:
-
-                break;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     @Override
     public void showFail() {
 
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.share:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 
     @Override
     public void onClick(View v) {

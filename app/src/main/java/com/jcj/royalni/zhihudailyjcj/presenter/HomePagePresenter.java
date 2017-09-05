@@ -1,8 +1,8 @@
 package com.jcj.royalni.zhihudailyjcj.presenter;
 
-import com.jcj.royalni.zhihudailyjcj.bean.NewsDetail;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
+import com.jcj.royalni.zhihudailyjcj.bean.TopNews;
 import com.jcj.royalni.zhihudailyjcj.model.HomePageModel;
 import com.jcj.royalni.zhihudailyjcj.model.IHomePageModel;
 import com.jcj.royalni.zhihudailyjcj.model.ILoadBeforeDataListener;
@@ -57,8 +57,8 @@ public class HomePagePresenter {
     public void loadTopNews(List<Story> stories) {
         model.loadTopNews(stories, new ILoadTopNewsListener() {
             @Override
-            public void loadTopNewsSucc(List<NewsDetail> newsDetails) {
-                view.loadTopNewsSucc(newsDetails);
+            public void loadTopNewsSucc(List<TopNews> topNewses) {
+                view.loadTopNewsSucc(topNewses);
             }
 
         });

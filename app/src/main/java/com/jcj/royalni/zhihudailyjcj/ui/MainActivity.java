@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,19 +15,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.jcj.royalni.zhihudailyjcj.NewsApp;
-import com.jcj.royalni.zhihudailyjcj.Obversable.ObservableFromHttp;
 import com.jcj.royalni.zhihudailyjcj.R;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsDateItemDecoration;
 import com.jcj.royalni.zhihudailyjcj.adapter.NewsListAdapter;
@@ -35,9 +30,11 @@ import com.jcj.royalni.zhihudailyjcj.adapter.TopNewsAdapter;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsDetail;
 import com.jcj.royalni.zhihudailyjcj.bean.NewsList;
 import com.jcj.royalni.zhihudailyjcj.bean.Story;
+import com.jcj.royalni.zhihudailyjcj.bean.TopNews;
 import com.jcj.royalni.zhihudailyjcj.db.NewsDatabase;
 import com.jcj.royalni.zhihudailyjcj.presenter.HomePagePresenter;
-import com.jcj.royalni.zhihudailyjcj.utils.DensityUtils;
+import com.jcj.royalni.zhihudailyjcj.utils.DiffCallbackUtil;
+import com.jcj.royalni.zhihudailyjcj.utils.HtmlUtil;
 import com.jcj.royalni.zhihudailyjcj.utils.NewsAutoRefreshScollListener;
 import com.jcj.royalni.zhihudailyjcj.utils.ToastUtil;
 import com.jcj.royalni.zhihudailyjcj.view.IHomePageView;
@@ -48,14 +45,8 @@ import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
-import static android.os.Build.VERSION_CODES.N;
-
-public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener, IHomePageView, ViewPager.OnPageChangeListener {
+public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener, IHomePageView, ViewPager.OnPageChangeListener, TopNewsAdapter.loadTopNewsNotTodayListener {
     @Bind(R.id.swipe_refreshlayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
     @Bind(R.id.rv_news)
@@ -86,7 +77,9 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private CirclePageIndicator mIndicator;
     private TextView mTopNewsTitle;
     private ViewPager viewPager;
-
+    List<TopNews> topNewses = new ArrayList<>();
+    private List<Story> mOldStories = new ArrayList<>();
+    private List<Story> mNewStories = new ArrayList<>();
     @Override
     protected int getLayoutId() {
         return R.layout.activity_main;
@@ -139,14 +132,20 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     @Override
     protected void onResume() {
         super.onResume();
-        if (mAdapter.getStories().size() == 0) {
+        if (HtmlUtil.isNetworkAvailable(this)) {
             presenter.loadLatestData();
+        }else {
+            loadLatestDataFail();
         }
     }
 
     @Override
     public void onRefresh() {
-        presenter.loadLatestData();
+        if (HtmlUtil.isNetworkAvailable(this)) {
+            presenter.loadLatestData();
+        }else {
+            loadLatestDataFail();
+        }
     }
 
     @Override
@@ -167,10 +166,17 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     public void loadBeforeDataSucc(List<Story> newsList, String curDate) {
         this.curDate = curDate;
         mNewsAutoRefreshScollListener.setLoading(false);
+        for (Story story:stories) {
+            if (!mOldStories.contains(story)) {
+                mOldStories.add(story);
+            }
+        }
         stories.addAll(newsList);
-        mAdapter.updateData(stories);
-        initHeaderDatas();
-        mAdapterWrapper.notifyDataSetChanged();
+        mNewStories = stories;
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallbackUtil(mOldStories, mNewStories), true);
+        diffResult.dispatchUpdatesTo(mAdapterWrapper);
+        mAdapter.setStories(stories);
+//        initHeaderDatas();
         //不知道为什么不加这一句，在用完刷新最新新闻以后总是会报错，
         // 读取到的信息总是不能赋值给newsDateItemDecoration中
         newsDateItemDecoration.setStories(stories);
@@ -179,8 +185,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     @Override
     public void loadLatestDataSucc(NewsList newsList) {
         mSwipeRefreshLayout.setRefreshing(true);
-        stories = newsList.getStories();
         newsHasRead = newsDatabase.queryIsRead();
+        stories = newsList.getStories();
         if (stories != null) {
             curDate = newsList.getDate();
             for (Story story : stories) {
@@ -194,9 +200,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 newsDateItemDecoration = new NewsDateItemDecoration(MainActivity.this, stories, mToolbar);
                 mRecyclerView.addItemDecoration(newsDateItemDecoration);
             }
-
-            mAdapter.updateData(stories);
             initHeaderDatas();
+            mAdapter.setStories(stories);
             mAdapterWrapper.notifyDataSetChanged();
             mSwipeRefreshLayout.setRefreshing(false);
         }
@@ -209,8 +214,10 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         btEmptyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showErrorView(false);
-                presenter.loadLatestData();
+                if (HtmlUtil.isNetworkAvailable(NewsApp.getInstance())) {
+                    showErrorView(false);
+                    presenter.loadLatestData();
+                }
             }
         });
     }
@@ -221,7 +228,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             mSwipeRefreshLayout.setVisibility(View.GONE);
             mSwipeRefreshLayout.setRefreshing(false);
             emptyView.setVisibility(View.VISIBLE);
-            mAdapter.updateData(Collections.EMPTY_LIST);
+            mNewStories = Collections.EMPTY_LIST;
+            mRecyclerView.setVisibility(View.GONE);
         } else {
             mSwipeRefreshLayout.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
@@ -241,11 +249,12 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         initErrorView();
         showErrorView(true);
     }
-    List<NewsDetail> newsDetails;
     @Override
-    public void loadTopNewsSucc(List<NewsDetail> newsDetails) {
-        this.newsDetails = newsDetails;
-        TopNewsAdapter topNewsAdapter = new TopNewsAdapter(newsDetails,stories);
+    public void loadTopNewsSucc(List<TopNews> topNewses) {
+
+        this.topNewses = topNewses;
+        TopNewsAdapter topNewsAdapter = new TopNewsAdapter(topNewses,stories);
+        topNewsAdapter.setListener(this);
         viewPager.setAdapter(topNewsAdapter);
 
         mIndicator.setViewPager(viewPager);
@@ -262,12 +271,26 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
     @Override
     public void onPageSelected(int position) {
-        NewsDetail newsDetail = newsDetails.get(position);
-        mTopNewsTitle.setText(newsDetail.getTitle());
+        TopNews topNews = topNewses.get(position);
+        mTopNewsTitle.setText(topNews.getTitle());
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    /**
+     * 当新闻头条中出现非今日消息时，由于没有对应的story的详情页信息 调用此接口获取信息并跳转至相应详情页面
+     * @param topNews
+     */
+    @Override
+    public void goToNewsDetailPage(TopNews topNews) {
+        presenter.loadBeforeData(stories.get(0).getDate());
+        for (Story story:stories) {
+            if (story.getId() == topNews.getId()){
+                NewsDetailActivity.startNewsDetailActivity(NewsApp.getInstance(),story);
+            }
+        }
     }
 }
