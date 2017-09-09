@@ -6,10 +6,10 @@
         android:title="切换主题"
         app:showAsAction="never"
         />
-
     <item
         android:id="@+id/menu_action_about"
         android:title="关于"
         app:showAsAction="never"
+
         />
 </menu>

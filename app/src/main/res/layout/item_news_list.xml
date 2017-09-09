@@ -36,7 +36,7 @@
             android:maxLines="3"
             android:padding="3dp"
             android:textSize="18sp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/text_color"
             tools:text="新闻标题新闻标题新闻标题新闻标题新闻标题新闻标题,不忘初心,方得始终." />
     </RelativeLayout>
 

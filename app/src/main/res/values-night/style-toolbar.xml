@@ -13,9 +13,10 @@
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
     </style>
-    <style name="MyToolbarPopupTheme" parent="ThemeOverlay.AppCompat.Light">
+    <style name="MyToolbarPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
         <!--Menu文字颜色-->
-        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+
         <!--子控件相对父控件位置-->
         <item name="android:gravity">center_vertical</item>
     </style>

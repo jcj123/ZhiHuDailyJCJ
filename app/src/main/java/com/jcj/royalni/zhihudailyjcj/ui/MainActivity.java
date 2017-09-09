@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -88,7 +89,6 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     @Override
     protected void afterCreate(Bundle savedInstanceState) {
         mSwipeRefreshLayout.setOnRefreshListener(this);
-
         mToolbar.setTitle("首页");
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
@@ -157,7 +157,18 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-
+            case R.id.menu_action_daynight:
+                boolean isDay = dayNightHelper.isDay();
+                if (isDay) {
+                    dayNightHelper.setIsDay(false);
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    recreate();
+                }else {
+                    dayNightHelper.setIsDay(true);
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    recreate();
+                }
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

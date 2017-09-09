@@ -26,5 +26,4 @@
     <style name="CollapsingToolbarTitleStyle.About" parent="@android:style/TextAppearance">
         <item name="android:textColor">@android:color/transparent</item>
     </style>
-
 </resources>
