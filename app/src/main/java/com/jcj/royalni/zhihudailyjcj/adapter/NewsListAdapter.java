@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,6 +38,8 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
 
     private NewsDatabase database;
     private List newsHasRead;
+    private boolean anim = true;
+    private long lastPos = -1;
 
     public void setNewsHasRead(List newsHasRead) {
         this.newsHasRead = newsHasRead;
@@ -110,7 +113,16 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsLi
                 NewsDetailActivity.startNewsDetailActivity(NewsApp.getInstance(), story);
             }
         });
-//        }
+        if (anim) {
+            startAnimation(holder.cardView,position);
+        }
+    }
+
+    private void startAnimation(View view, int position) {
+        if (position > lastPos) {
+            view.startAnimation(AnimationUtils.loadAnimation(NewsApp.getInstance(), R.anim.item_bottom_in));
+            lastPos = position;
+        }
     }
 
     @Override

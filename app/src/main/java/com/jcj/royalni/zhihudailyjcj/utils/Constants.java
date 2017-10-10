@@ -13,7 +13,7 @@ public class Constants {
     public static final String LATEST_NEWS_URL = BASIC_NEWS_URL+"latest";
 
     public static final String SP_NAME = "spName";
-    public static final String IS_DAY = "isday";
+    public static final String IS_NIGHT = "isnight";
 
     private Constants(){};
 

@@ -3,17 +3,21 @@ package com.jcj.royalni.zhihudailyjcj.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,12 +32,15 @@ import com.jcj.royalni.zhihudailyjcj.view.IDetailPageView;
 
 import butterknife.Bind;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
+
 /**
  * Created by Royal Ni on 2017/7/7.
  */
 
 public class NewsDetailActivity extends BaseActivity implements IDetailPageView, View.OnClickListener {
     public static final String NEWS_KEY = "newsKey";
+    private static final String TAG ="NewsDetailActivity" ;
     private Story mStory;
     @Bind(R.id.iv_detail)
     ImageView mDetailIv;
@@ -67,6 +74,10 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView,
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        Window window = getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.setStatusBarColor(Color.TRANSPARENT);
+        }
         mToolbar.setNavigationOnClickListener(this);
         presenter = new DetailPagePresenter(this, mStory);
         presenter.showData();
@@ -97,24 +108,32 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView,
 
     /**
      * 页面显示成功
+     *
      * @param newsDetail
      */
     @Override
     public void showSucc(NewsDetail newsDetail) {
+        Log.d(TAG,newsDetail.toString());
+        mTvDetail = (TextView) findViewById(R.id.detail_tv);
+        mTvImageFrom = (TextView) findViewById(R.id.tv_image_from);
+        mDetailWebview = (WebView) findViewById(R.id.detail_webview);
         mTvDetail.setText(newsDetail.getTitle());
         mTvImageFrom.setText(newsDetail.getImage_source());
         Glide.with(NewsDetailActivity.this).load(newsDetail.getImage()).into(mDetailIv);
 
         mDetailWebview.setDrawingCacheEnabled(true);
-        String htmlSource = HtmlUtil.createHtmlData(newsDetail, false);
+        boolean isNight = dayNightHelper.isNight();
+        String htmlSource = HtmlUtil.createHtmlData(newsDetail, isNight);
         //这样显示会在格式上出现一点问题
 //      mDetailWebview.loadDataWithBaseURL(null, htmlSource,"text/html", "utf-8", null);
         mDetailWebview.loadData(htmlSource, HtmlUtil.MIME_TYPE, HtmlUtil.ENCODING);
     }
+
     @Override
     public void showFail() {
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -125,9 +144,9 @@ public class NewsDetailActivity extends BaseActivity implements IDetailPageView,
     }
 
 
-
     @Override
     public void onClick(View v) {
         finish();
     }
+
 }

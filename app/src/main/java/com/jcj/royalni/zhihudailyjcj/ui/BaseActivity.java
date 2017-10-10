@@ -30,8 +30,8 @@ public abstract class BaseActivity extends SwipeBackActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         initData();
-        final boolean isDay = dayNightHelper.isDay();
-        if (isDay) {
+        final boolean isNight = dayNightHelper.isNight();
+        if (isNight) {
             getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }else {
             getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);

@@ -16,21 +16,11 @@ public final class NewsApp extends Application{
     private static NewsApp mGlobalContext;
     private static NewsDatabase database;
 
-    static {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
         mGlobalContext = this;
         database = new NewsDatabase(getApplicationContext());
-        DayNightHelper dayNightHelper = new DayNightHelper(getApplicationContext());
-        if (dayNightHelper.isDay()) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }else  {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
     }
 
     public static NewsApp getInstance() {

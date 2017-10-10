@@ -92,10 +92,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         mToolbar.setTitle("首页");
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        }
+
         presenter = new HomePagePresenter(this);
         newsDatabase = NewsApp.getDatabase();
 
@@ -158,14 +155,14 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_action_daynight:
-                boolean isDay = dayNightHelper.isDay();
-                if (isDay) {
-                    dayNightHelper.setIsDay(false);
-                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                boolean isNight = dayNightHelper.isNight();
+                if (isNight) {
+                    dayNightHelper.setIsNight(false);
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                     recreate();
                 }else {
-                    dayNightHelper.setIsDay(true);
-                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    dayNightHelper.setIsNight(true);
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                     recreate();
                 }
                 break;

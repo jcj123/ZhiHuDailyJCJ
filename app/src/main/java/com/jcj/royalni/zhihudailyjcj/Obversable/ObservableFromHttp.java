@@ -72,22 +72,22 @@ public class ObservableFromHttp {
     }
 
     public static Observable<NewsDetail> getDetailNewsObservable(int id) {
-        Observable<NewsDetail> observable = httpHelper.getDetailNewsObservable(id);
+//        Observable<NewsDetail> observable = httpHelper.getDetailNewsObservable(id);
 
-//        String url = Constants.BASIC_NEWS_URL + id;
-//        Observable<NewsDetail> observable = Observable
-//                .just(url)
-//                .map(new Func1<String, NewsDetail>() {
-//                    @Override
-//                    public NewsDetail call(String s) {
-//                        String json = Http.getJsonFromHtml(s);
-//                        Gson gson = new Gson();
-//                        Type type = TypeToken.get(NewsDetail.class).getType();
-//                        NewsDetail detail = gson.fromJson(json,type);
-//                        Log.d(TAG,detail.toString());
-//                        return detail;
-//                    }
-//                });
+        String url = Constants.BASIC_NEWS_URL + id;
+        Observable<NewsDetail> observable = Observable
+                .just(url)
+                .map(new Func1<String, NewsDetail>() {
+                    @Override
+                    public NewsDetail call(String s) {
+                        String json = Http.getJsonFromHtml(s);
+                        Gson gson = new Gson();
+                        Type type = TypeToken.get(NewsDetail.class).getType();
+                        NewsDetail detail = gson.fromJson(json,type);
+                        Log.d(TAG,detail.toString());
+                        return detail;
+                    }
+                });
         return observable;
     }
 

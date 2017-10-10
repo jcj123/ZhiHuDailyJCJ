@@ -16,12 +16,12 @@ public class DayNightHelper {
 
     }
 
-    public boolean isDay() {
-        final boolean isDay = spUtil.getBoolean(Constants.IS_DAY, true);
-        return isDay;
+    public boolean isNight() {
+        final boolean isNight = spUtil.getBoolean(Constants.IS_NIGHT, true);
+        return isNight;
     }
 
-    public void setIsDay(boolean isDay) {
-        spUtil.putBoolean(Constants.IS_DAY,isDay);
+    public void setIsNight(boolean isNight) {
+        spUtil.putBoolean(Constants.IS_NIGHT,isNight);
     }
 }
